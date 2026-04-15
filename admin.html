@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel — True Furnitures Indore</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+<!-- TOAST -->
+<div id="admin-toast"></div>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <h2>TrueFurnitures</h2>
+      <p>Admin Panel · Indore</p>
+    </div>
+    <div class="login-form">
+      <div>
+        <label for="login-user">Username</label>
+        <input type="text" id="login-user" placeholder="admin" autocomplete="username">
+      </div>
+      <div>
+        <label for="login-pass">Password</label>
+        <input type="password" id="login-pass" placeholder="admin123" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <button class="login-btn" onclick="doLogin()">Sign In</button>
+      <p id="login-err" class="login-err">Invalid credentials. Try admin / admin123</p>
+    </div>
+  </div>
+</div>
+
+<!-- SIDEBAR MOBILE OVERLAY -->
+<div class="sb-overlay" id="sb-overlay" onclick="closeSidebar()"></div>
+
+<!-- SIDEBAR -->
+<div id="sidebar">
+  <div class="sb-logo">
+    <h2>TrueFurnitures</h2>
+    <p>Admin Panel · Indore</p>
+  </div>
+
+  <nav class="sb-nav" aria-label="Admin navigation">
+    <div class="nav-sec">Overview</div>
+    <button class="nav-item active" onclick="showPanel('dashboard',this)"><span class="ni">📊</span> Dashboard</button>
+    <button class="nav-item" onclick="showPanel('visitors',this)"><span class="ni">👁️</span> Visitor Analytics</button>
+    <button class="nav-item" onclick="showPanel('orders',this)"><span class="ni">📦</span> Orders</button>
+
+    <div class="nav-sec">Store</div>
+    <button class="nav-item" onclick="showPanel('products',this)"><span class="ni">🛋️</span> Products</button>
+    <button class="nav-item" onclick="showPanel('quotes',this)"><span class="ni">💬</span> Quote Requests</button>
+
+    <div class="nav-sec">Settings</div>
+    <button class="nav-item" onclick="showPanel('settings',this)"><span class="ni">⚙️</span> Settings</button>
+    <button class="nav-item" onclick="window.open('index.html','_blank')"><span class="ni">🌐</span> View Store</button>
+  </nav>
+
+  <div class="sb-footer">
+    <div class="admin-tag">
+      <div class="admin-av">AD</div>
+      <div>
+        <div class="admin-nm">Administrator</div>
+        <div class="admin-rl">True Furnitures Indore</div>
+      </div>
+    </div>
+    <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="main">
+
+  <!-- TOPBAR -->
+  <div id="topbar">
+    <div style="display:flex;align-items:center;gap:0.8rem">
+      <button class="sb-toggle" onclick="toggleSidebar()" aria-label="Toggle sidebar">☰</button>
+      <div class="page-title" id="page-title">Dashboard</div>
+    </div>
+    <div class="tb-right">
+      <div style="font-size:0.72rem;color:var(--muted)" id="live-time-el"></div>
+      <div class="tb-badge"><span class="live-dot"></span>Live</div>
+      <a href="index.html" target="_blank" class="store-link">View Store ↗</a>
+      <button class="refresh-btn" onclick="refreshAll()">↺ Refresh</button>
+    </div>
+  </div>
+
+  <!-- CONTENT PANELS -->
+  <div id="content">
+
+    <!-- ═══════════════════════════════════
+         DASHBOARD
+    ═══════════════════════════════════ -->
+    <div class="panel active" id="panel-dashboard">
+
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-icon">👥</div>
+          <div class="metric-label">Total Visitors</div>
+          <div class="metric-val" id="m-visitors">—</div>
+          <div class="metric-chg up">↑ tracked live</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon">💬</div>
+          <div class="metric-label">Quote Requests</div>
+          <div class="metric-val" id="m-quotes">0</div>
+          <div class="metric-chg up">↑ from store form</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon">🛋️</div>
+          <div class="metric-label">Active Products</div>
+          <div class="metric-val" id="m-products">12</div>
+          <div class="metric-chg up">↑ manage below</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon">📍</div>
+          <div class="metric-label">Cities Reached</div>
+          <div class="metric-val" id="m-cities">0</div>
+          <div class="metric-chg up">↑ via geolocation</div>
+        </div>
+      </div>
+
+      <div class="g3">
+        <div class="card">
+          <div class="card-title">Visitor Activity <span class="ct-sub">Last 7 days (sample)</span></div>
+          <div class="bar-chart" id="bar-chart"></div>
+          <div class="chart-labels" id="chart-labels"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Top Traffic Sources</div>
+          <div id="top-sources"></div>
+        </div>
+      </div>
+
+      <div class="g2">
+        <div class="card">
+          <div class="card-title">Top Locations <span class="ct-sub" id="visitor-count-label"></span></div>
+          <div id="top-locations"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Recent Activity</div>
+          <div id="recent-activity"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Latest Visitor Log (20 most recent)</div>
+        <div class="tbl-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Event</th>
+                <th>Location</th>
+                <th>Device</th>
+                <th>Source</th>
+              </tr>
+            </thead>
+            <tbody id="visitor-mini-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         VISITOR ANALYTICS
+    ═══════════════════════════════════ -->
+    <div class="panel" id="panel-visitors">
+      <div class="sec-actions">
+        <h3>Visitor Analytics</h3>
+        <button class="add-prod-btn" style="background:var(--red)" onclick="clearVisitorLog()">Clear Log</button>
+      </div>
+
+      <div class="metric-grid">
+        <div class="metric-card"><div class="metric-icon">👁️</div><div class="metric-label">All Events</div><div class="metric-val" id="v-pageviews">0</div></div>
+        <div class="metric-card"><div class="metric-icon">📍</div><div class="metric-label">Unique Cities</div><div class="metric-val" id="v-cities">0</div></div>
+        <div class="metric-card"><div class="metric-icon">🛒</div><div class="metric-label">Add to Cart</div><div class="metric-val" id="v-carts">0</div></div>
+        <div class="metric-card"><div class="metric-icon">💬</div><div class="metric-label">Quote Forms</div><div class="metric-val" id="v-quotes2">0</div></div>
+      </div>
+
+      <div class="g2">
+        <div class="card">
+          <div class="card-title">Visitors by City</div>
+          <div id="city-chart"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Device Breakdown</div>
+          <div id="device-chart"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Full Event Log</div>
+        <div class="log-filters" role="group" aria-label="Filter log">
+          <button class="lf-btn active" onclick="filterLog('all',this)">All</button>
+          <button class="lf-btn" onclick="filterLog('visit',this)">Visits</button>
+          <button class="lf-btn" onclick="filterLog('session',this)">Sessions</button>
+          <button class="lf-btn" onclick="filterLog('add_to_cart',this)">Cart Events</button>
+          <button class="lf-btn" onclick="filterLog('quote',this)">Quotes</button>
+          <button class="lf-btn" onclick="filterLog('newsletter',this)">Newsletter</button>
+        </div>
+        <div class="tbl-wrap" style="max-height:380px;overflow-y:auto">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Time</th><th>Event</th><th>Item / Name</th>
+                <th>Location</th><th>Device</th><th>Referrer</th>
+              </tr>
+            </thead>
+            <tbody id="full-log-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         PRODUCT MANAGER
+    ═══════════════════════════════════ -->
+    <div class="panel" id="panel-products">
+      <div class="sec-actions">
+        <h3>Product Manager</h3>
+        <button class="add-prod-btn" onclick="openAddProduct()">+ Add Product</button>
+      </div>
+
+      <div class="pm-filters">
+        <input type="search" id="pm-search" placeholder="Search products…" oninput="renderPMGrid()" aria-label="Search products">
+        <select id="pm-cat-filter" onchange="renderPMGrid()" aria-label="Filter by category">
+          <option value="">All Categories</option>
+          <option>Living Room</option>
+          <option>Bedroom</option>
+          <option>Dining</option>
+          <option>Office</option>
+          <option>Outdoor</option>
+        </select>
+      </div>
+
+      <div class="pm-grid" id="pm-grid"></div>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         QUOTE REQUESTS
+    ═══════════════════════════════════ -->
+    <div class="panel" id="panel-quotes">
+      <div class="sec-actions">
+        <h3>Quote Requests</h3>
+        <button class="add-prod-btn" onclick="exportQuotes()">Export CSV</button>
+      </div>
+      <div class="card">
+        <div class="tbl-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Time</th><th>Name</th><th>Phone</th>
+                <th>Location</th><th>Category</th><th>Message</th><th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="quotes-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         ORDERS
+    ═══════════════════════════════════ -->
+    <div class="panel" id="panel-orders">
+      <div class="sec-actions">
+        <h3>Orders</h3>
+        <button class="add-prod-btn" onclick="adminToast('Export feature coming soon!')">Export</button>
+      </div>
+      <div class="card">
+        <div class="tbl-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>#Order</th><th>Customer</th><th>Items</th>
+                <th>Amount</th><th>City</th><th>Date</th><th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="orders-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         SETTINGS
+    ═══════════════════════════════════ -->
+    <div class="panel" id="panel-settings">
+      <div class="sec-actions"><h3>Store Settings</h3></div>
+      <div class="settings-grid">
+
+        <div class="card">
+          <div class="card-title">Store Information</div>
+          <div style="display:grid;gap:0.9rem">
+            <div class="fg"><label>Store Name</label><input type="text" value="True Furnitures"></div>
+            <div class="fg"><label>Phone</label><input type="tel" value="7773896496"></div>
+            <div class="fg"><label>Email</label><input type="email" value="info@truefurnitures.in"></div>
+            <div class="fg"><label>Address</label><input type="text" value="Vijay Nagar Square, Indore – 452010"></div>
+            <div class="fg"><label>WhatsApp</label><input type="tel" value="7773896496"></div>
+            <button onclick="adminToast('✅ Settings saved!')" style="background:var(--bark);color:#1a1a1a;border:none;border-radius:8px;padding:0.65rem;font-size:0.82rem;font-weight:600;cursor:pointer">Save Changes</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Feature Toggles</div>
+          <div>
+            <div class="toggle-row">
+              <div class="toggle-row-info"><div>EMI Calculator</div><div>Show on homepage</div></div>
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-row-info"><div>3D Model Viewer</div><div>Interactive models</div></div>
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-row-info"><div>Quote Popup</div><div>Auto-show after 3s</div></div>
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-row-info"><div>Room Planner</div><div>2D floor planner tool</div></div>
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-row-info"><div>Location Banner</div><div>Auto-detect visitor city</div></div>
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /#content -->
+</div><!-- /#main -->
+
+<!-- ═══════════════════════════════════
+     ADD / EDIT PRODUCT MODAL
+═══════════════════════════════════ -->
+<div id="prod-modal" role="dialog" aria-modal="true" aria-label="Add or edit product">
+  <div class="modal-box">
+    <div class="modal-title">
+      <span id="modal-title-text">Add New Product</span>
+      <button class="modal-close" onclick="closeProdModal()" aria-label="Close">×</button>
+    </div>
+
+    <div class="form-grid">
+      <!-- Row 1: Name + Category -->
+      <div class="form-row">
+        <div class="fg">
+          <label for="pm-name">Product Name</label>
+          <input type="text" id="pm-name" placeholder="e.g. Royale Sectional Sofa">
+        </div>
+        <div class="fg">
+          <label for="pm-cat">Category</label>
+          <select id="pm-cat">
+            <option>Living Room</option>
+            <option>Bedroom</option>
+            <option>Dining</option>
+            <option>Office</option>
+            <option>Outdoor</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Row 2: Price + Old Price -->
+      <div class="form-row">
+        <div class="fg">
+          <label for="pm-price">Price (₹)</label>
+          <input type="number" id="pm-price" placeholder="48500" min="0">
+        </div>
+        <div class="fg">
+          <label for="pm-old-price">Old Price (₹) <span style="opacity:0.5;font-size:0.65rem;text-transform:none;letter-spacing:0">optional</span></label>
+          <input type="number" id="pm-old-price" placeholder="Leave blank if no discount" min="0">
+        </div>
+      </div>
+
+      <!-- Row 3: Badge + Rating -->
+      <div class="form-row">
+        <div class="fg">
+          <label for="pm-badge">Badge</label>
+          <select id="pm-badge">
+            <option value="">None</option>
+            <option value="Bestseller">Bestseller</option>
+            <option value="New">New Arrival</option>
+            <option value="Sale">Sale</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label for="pm-rating">Rating (1–5)</label>
+          <input type="number" id="pm-rating" min="1" max="5" step="0.1" placeholder="4.8">
+        </div>
+      </div>
+
+      <!-- Image URL -->
+      <div class="fg">
+        <label for="pm-img">Product Image URL</label>
+        <input type="url" id="pm-img" placeholder="https://images.unsplash.com/…" oninput="previewImg()">
+      </div>
+
+      <!-- Image Upload from device -->
+      <div class="upload-area" onclick="document.getElementById('pm-file').click()" role="button" tabindex="0" aria-label="Upload image from device">
+        <p>📷 Or upload from your device</p>
+        <p style="font-size:0.68rem;margin-top:0.3rem;color:var(--muted)">JPG, PNG, WebP — max 5 MB</p>
+        <input type="file" id="pm-file" accept="image/*" onchange="handleImgUpload(this)">
+        <img id="upload-preview" class="upload-preview" alt="Product preview">
+      </div>
+
+      <!-- ── 3D MODEL UPLOAD ── -->
+      <div class="fg">
+        <label>3D Model File <span style="opacity:0.5;font-size:0.65rem;text-transform:none;letter-spacing:0">.obj format · optional</span></label>
+        <div class="upload-3d-area" onclick="document.getElementById('pm-obj').click()" role="button" tabindex="0" aria-label="Upload 3D OBJ model">
+          <p>🧊 Upload .OBJ 3D Model</p>
+          <p style="font-size:0.68rem;margin-top:0.25rem;color:var(--muted)">Wavefront .obj file — customers will see it in the interactive 3D viewer</p>
+          <input type="file" id="pm-obj" accept=".obj" onchange="handleOBJUpload(this)">
+        </div>
+        <div class="model-3d-status" id="model-3d-status"></div>
+        <!-- Live 3D preview canvas inside the modal -->
+        <canvas id="preview-3d-canvas" style="display:none;width:100%;height:160px;background:#1a1a22;border-radius:8px;margin-top:0.6rem;cursor:grab" aria-label="3D model preview — drag to rotate"></canvas>
+      </div>
+
+      <!-- Description -->
+      <div class="fg">
+        <label for="pm-desc">Description</label>
+        <textarea id="pm-desc" placeholder="Describe the product…"></textarea>
+      </div>
+    </div>
+
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeProdModal()">Cancel</button>
+      <button class="modal-save" onclick="saveProduct()">Save Product</button>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts: engine first so admin.js can call Engine3D -->
+<script>window.TF = {};</script>
+<script src="js/data.js"></script>
+<script src="js/engine3d.js"></script>
+<script src="admin/js/admin.js"></script>
+</body>
+</html>
