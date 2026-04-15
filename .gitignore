@@ -1,0 +1,11 @@
+node_moduoles
+dist    
+build
+.DS_Store
+*.log
+*.env
+.idea
+.vscode
+*.sublime-project
+*.sublime-workspace
+*.iml
