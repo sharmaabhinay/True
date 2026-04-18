@@ -10,7 +10,7 @@ const TITLES = {
   orders:'Orders', settings:'Settings',
 };
 
-export default function AdminTopbar() {
+export default function AdminTopbar({ title }) {
   const dispatch = useDispatch();
   const panel    = useSelector(selectActivePanel);
   const [time, setTime] = useState('');
@@ -30,7 +30,7 @@ export default function AdminTopbar() {
                 className="lg:hidden bg-transparent border-none text-admin-text text-xl cursor-pointer p-1">
           <FiMenu />
         </button>
-        <h1 className="text-admin-text text-[0.95rem] font-semibold">{TITLES[panel] || panel}</h1>
+        <h1 className="text-admin-text text-[0.95rem] font-semibold">{title || TITLES[panel] || panel}</h1>
       </div>
 
       <div className="flex items-center gap-3 flex-wrap">

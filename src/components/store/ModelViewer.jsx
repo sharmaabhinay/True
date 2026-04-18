@@ -5,6 +5,7 @@ import {
   openQuoteModal, showToast,
 } from '../../store/slices/uiSlice';
 import { addToCart } from '../../store/slices/cartSlice';
+import { addCartItemForCurrentUser, selectIsCustomerAuthenticated } from '../../store/slices/customerSlice';
 import { use3DCanvas } from '../../hooks/use3DCanvas';
 import { drawSofa, drawAlmirah, drawBed, drawChair, drawOBJModel, parseOBJ } from '../../utils/engine3d';
 import { useReveal } from '../../hooks/useReveal';
@@ -21,6 +22,7 @@ const TAB_CONTENT = {
 export default function ModelViewer() {
   const dispatch     = useDispatch();
   const { model, color, size, price, tab, customGeo } = useSelector(selectModelState);
+  const isAuthenticated = useSelector(selectIsCustomerAuthenticated);
   const revealRef    = useReveal();
   const fileInputRef = useRef(null);
 
@@ -39,7 +41,17 @@ export default function ModelViewer() {
   const sizes = Object.keys(meta.prices);
 
   const handleAddToCart = () => {
-    dispatch(addToCart({ id: 200 + Date.now() % 1000, name: `${meta.name} (${size})`, img: '', price }));
+    const item = {
+      id: 200 + Date.now() % 1000,
+      cartKey: `${model}-${size}-${color}`,
+      name: `${meta.name} (${size})`,
+      img: '',
+      price,
+      size,
+      color: COLOUR_OPTIONS.find((entry) => entry.hex === color)?.label || color,
+    };
+    dispatch(addToCart(item));
+    if (isAuthenticated) dispatch(addCartItemForCurrentUser({ ...item, qty: 1 }));
   };
 
   const handleOBJUpload = (e) => {

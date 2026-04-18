@@ -17,6 +17,8 @@ import {
 import { showToast } from '../../store/slices/uiSlice';
 
 const INITIAL_FORM = {
+  firstName: '',
+  surname: '',
   name: '',
   email: '',
   phone: '',
@@ -98,6 +100,8 @@ export default function AuthModal() {
     }
 
     dispatch(signupCustomer({
+      firstName: form.firstName.trim(),
+      surname: form.surname.trim(),
       name: form.name.trim(),
       email,
       phone,
@@ -164,12 +168,28 @@ export default function AuthModal() {
 
           <form className="space-y-4" onSubmit={mode === 'signup' ? handleSignup : handleLogin}>
             {mode === 'signup' && (
-              <Field
-                icon={<FiUser />}
-                placeholder="Full name"
-                value={form.name}
-                onChange={(value) => setForm((prev) => ({ ...prev, name: value }))}
-              />
+              <>
+                <div className="grid grid-cols-2 gap-3">
+                  <Field
+                    icon={<FiUser />}
+                    placeholder="First name"
+                    value={form.firstName}
+                    onChange={(value) => setForm((prev) => ({ ...prev, firstName: value, name: `${value} ${prev.surname}`.trim() }))}
+                  />
+                  <Field
+                    icon={<FiUser />}
+                    placeholder="Surname"
+                    value={form.surname}
+                    onChange={(value) => setForm((prev) => ({ ...prev, surname: value, name: `${prev.firstName} ${value}`.trim() }))}
+                  />
+                </div>
+                <Field
+                  icon={<FiUser />}
+                  placeholder="Full name"
+                  value={form.name}
+                  onChange={(value) => setForm((prev) => ({ ...prev, name: value }))}
+                />
+              </>
             )}
 
             <Field

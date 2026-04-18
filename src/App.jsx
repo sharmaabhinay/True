@@ -12,6 +12,8 @@ import TrackOrderPage from './pages/TrackOrderPage';
 import WishlistPage from './pages/WishlistPage';
 import OrdersPage from './pages/OrdersPage';
 import ProfilePage from './pages/ProfilePage';
+import AdminCustomerDetailPage from './pages/AdminCustomerDetailPage';
+import AdminOrderDetailPage from './pages/AdminOrderDetailPage';
 
 function AppRoutes() {
   const dispatch = useDispatch();
@@ -41,6 +43,8 @@ function AppRoutes() {
       <Route path="/wishlist"    element={<WishlistPage />} />
       <Route path="/my-orders"   element={<OrdersPage />} />
       <Route path="/profile"     element={<ProfilePage />} />
+      <Route path="/admin/customers/:customerId" element={<AdminCustomerDetailPage />} />
+      <Route path="/admin/orders/:orderId" element={<AdminOrderDetailPage />} />
       <Route path="/admin"       element={<AdminPage />} />
       <Route path="*"            element={<StorePage />} />
     </Routes>

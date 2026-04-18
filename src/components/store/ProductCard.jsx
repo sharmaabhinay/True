@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { FiHeart } from 'react-icons/fi';
 import { addToCart } from '../../store/slices/cartSlice';
 import { showToast } from '../../store/slices/uiSlice';
-import { openAuthModal, selectCustomerWishlist, selectIsCustomerAuthenticated, toggleWishlist } from '../../store/slices/customerSlice';
+import { addCartItemForCurrentUser, openAuthModal, selectCustomerWishlist, selectIsCustomerAuthenticated, toggleWishlist } from '../../store/slices/customerSlice';
 import { inr, stars } from '../../utils/formatters';
 import Badge from '../ui/Badge';
 
@@ -18,7 +18,9 @@ export default function ProductCard({ product }) {
 
   const handleAddToCart = (e) => {
     e.stopPropagation();
-    dispatch(addToCart(product));
+    const item = { ...product, cartKey: `${product.id}-base` };
+    dispatch(addToCart(item));
+    if (isAuthenticated) dispatch(addCartItemForCurrentUser({ ...item, qty: 1 }));
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };

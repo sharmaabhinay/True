@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { FiMinus, FiPlus, FiShoppingBag, FiTrash2, FiX } from 'react-icons/fi';
 import { selectCartOpen, closeCart } from '../../store/slices/uiSlice';
 import { selectCartItems, selectCartTotal, removeFromCart, changeQty } from '../../store/slices/cartSlice';
+import { changeCartItemQtyForCurrentUser, removeCartItemForCurrentUser, selectIsCustomerAuthenticated } from '../../store/slices/customerSlice';
 import { inr } from '../../utils/formatters';
 
 export default function CartDrawer() {
@@ -12,6 +13,7 @@ export default function CartDrawer() {
   const open     = useSelector(selectCartOpen);
   const items    = useSelector(selectCartItems);
   const total    = useSelector(selectCartTotal);
+  const isAuthenticated = useSelector(selectIsCustomerAuthenticated);
 
   return (
     <>
@@ -63,18 +65,30 @@ export default function CartDrawer() {
                   <p className="text-bark text-sm mt-0.5">{inr(item.price)}</p>
                   {/* Qty */}
                   <div className="flex items-center gap-2 mt-2">
-                    <button onClick={() => dispatch(changeQty({ cartKey: item.cartKey || String(item.id), delta: -1 }))}
+                    <button onClick={() => {
+                      const cartKey = item.cartKey || String(item.id);
+                      dispatch(changeQty({ cartKey, delta: -1 }));
+                      if (isAuthenticated) dispatch(changeCartItemQtyForCurrentUser({ cartKey, delta: -1 }));
+                    }}
                             className="w-6 h-6 rounded-full border border-warm flex items-center justify-center text-sm
                                        hover:bg-warm transition-colors bg-transparent cursor-pointer"><FiMinus /></button>
                     <span className="text-sm w-5 text-center font-medium">{item.qty}</span>
-                    <button onClick={() => dispatch(changeQty({ cartKey: item.cartKey || String(item.id), delta: 1 }))}
+                    <button onClick={() => {
+                      const cartKey = item.cartKey || String(item.id);
+                      dispatch(changeQty({ cartKey, delta: 1 }));
+                      if (isAuthenticated) dispatch(changeCartItemQtyForCurrentUser({ cartKey, delta: 1 }));
+                    }}
                             className="w-6 h-6 rounded-full border border-warm flex items-center justify-center text-sm
                                        hover:bg-warm transition-colors bg-transparent cursor-pointer"><FiPlus /></button>
                   </div>
                 </div>
 
                 {/* Remove */}
-                <button onClick={() => dispatch(removeFromCart(item.cartKey || String(item.id)))} aria-label="Remove item"
+                <button onClick={() => {
+                  const cartKey = item.cartKey || String(item.id);
+                  dispatch(removeFromCart(cartKey));
+                  if (isAuthenticated) dispatch(removeCartItemForCurrentUser(cartKey));
+                }} aria-label="Remove item"
                         className="text-muted hover:text-red-500 text-sm transition-colors bg-transparent border-none cursor-pointer mt-1">
                   <FiTrash2 />
                 </button>

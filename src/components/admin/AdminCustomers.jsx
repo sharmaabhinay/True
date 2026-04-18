@@ -1,5 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { FiMail, FiMapPin, FiPhone, FiUser } from 'react-icons/fi';
 import { selectCustomers } from '../../store/slices/customerSlice';
 
@@ -19,7 +20,7 @@ export default function AdminCustomers() {
         ) : (
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
             {customers.map((customer) => (
-              <article key={customer.id} className="rounded-xl border border-admin-border p-4 bg-white/[0.02]">
+              <Link key={customer.id} to={`/admin/customers/${customer.id}`} className="rounded-xl border border-admin-border p-4 bg-white/[0.02] hover:border-gold transition-colors block">
                 <div className="flex items-start justify-between gap-3 mb-4">
                   <div>
                     <p className="text-admin-text text-sm font-medium">{customer.name}</p>
@@ -42,7 +43,7 @@ export default function AdminCustomers() {
                   <span className="px-2.5 py-1 rounded-full bg-gold/15 text-gold">{customer.orders?.length || 0} orders</span>
                   <span className="px-2.5 py-1 rounded-full bg-admin-blue/15 text-admin-blue">{customer.wishlist?.length || 0} wishlist items</span>
                 </div>
-              </article>
+              </Link>
             ))}
           </div>
         )}

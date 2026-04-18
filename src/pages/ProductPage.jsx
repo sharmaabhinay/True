@@ -6,7 +6,7 @@ import { selectAllProducts } from '../store/slices/productsSlice';
 import { addToCart } from '../store/slices/cartSlice';
 import { openQuoteModal, showToast } from '../store/slices/uiSlice';
 import { pushEvent } from '../store/slices/visitorSlice';
-import { openAuthModal, selectCustomerWishlist, selectIsCustomerAuthenticated, toggleWishlist } from '../store/slices/customerSlice';
+import { addCartItemForCurrentUser, openAuthModal, selectCustomerWishlist, selectIsCustomerAuthenticated, toggleWishlist } from '../store/slices/customerSlice';
 import { use3DCanvas } from '../hooks/use3DCanvas';
 import { drawSofa, drawAlmirah, drawBed, drawChair, drawOBJModel, parseOBJ } from '../utils/engine3d';
 import { PRODUCT_REVIEWS } from '../data/products';
@@ -335,13 +335,17 @@ export default function ProductPage() {
   const sizes = product.sizes ? Object.entries(product.sizes) : [];
 
   const handleAddToCart = () => {
-    dispatch(addToCart({
+    const item = {
       id:    product.id,
       cartKey: `${product.id}-${selectedSize || 'base'}`,
       name:  selectedSize ? `${product.name} (${selectedSize})` : product.name,
       img:   product.img,
       price,
-    }));
+      size: selectedSize || null,
+      color: COLOUR_OPTIONS.find(c => c.hex === selectedColor)?.label || selectedColor,
+    };
+    dispatch(addToCart(item));
+    if (isAuthenticated) dispatch(addCartItemForCurrentUser({ ...item, qty: 1 }));
     setAdded(true);
     setTimeout(() => setAdded(false), 2500);
   };

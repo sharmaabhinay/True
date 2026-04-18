@@ -12,6 +12,7 @@ import {
   selectIsCustomerAuthenticated,
   openAuthModal,
   updateProfile,
+  clearCurrentCustomerCart,
 } from '../store/slices/customerSlice';
 import { clearCart, selectCartItems, selectCartTotal } from '../store/slices/cartSlice';
 import { showToast } from '../store/slices/uiSlice';
@@ -87,6 +88,7 @@ export default function CheckoutPage() {
       amount: total,
       depositAmount,
       balanceAmount: total - depositAmount,
+      orderType: 'semi prepaid',
       address: { ...address },
       items: items.map((item) => ({
         cartKey: item.cartKey || String(item.id),
@@ -99,6 +101,7 @@ export default function CheckoutPage() {
       note: notes.trim(),
     }));
     dispatch(clearCart());
+    dispatch(clearCurrentCustomerCart());
     dispatch(pushEvent({ type: 'order', item: orderId, city: address.city, page: '/checkout' }));
     dispatch(showToast(`Order ${orderId} confirmed.`));
     navigate(`/thank-you?order=${orderId}`);
