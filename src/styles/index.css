@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Google Fonts ── */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+
+/* ── CSS Custom Properties (used by canvas / legacy values) ── */
+:root {
+  --cream: #F5F0E8;
+  --warm:  #E8DDD0;
+  --bark:  #8B6B4A;
+  --wood:  #6B4C2A;
+  --deep:  #2C1F12;
+  --gold:  #C8A86B;
+  --sage:  #7A8C6E;
+  --ivory: #FAF7F2;
+  --muted: #7A6A5A;
+}
+
+/* ── Base ── */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: #FAF7F2;
+  color: #2C1F12;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; display: block; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-thumb { background: #E8DDD0; border-radius: 2px; }
+
+/* ── Reveal animation (triggered by IntersectionObserver) ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Loader bar ── */
+.loader-bar-inner {
+  position: absolute;
+  left: -100%;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: #C8A86B;
+  animation: loadBar 2s ease forwards;
+}
+@keyframes loadBar { to { left: 0; } }
+
+/* ── Toast ── */
+.toast-enter {
+  transform: translateX(-50%) translateY(80px);
+  opacity: 0;
+}
+.toast-active {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* ── Canvas cursor ── */
+canvas.dragging { cursor: grabbing !important; }
+
+/* ── Admin scrollbar ── */
+.admin-scroll::-webkit-scrollbar { width: 4px; }
+.admin-scroll::-webkit-scrollbar-thumb { background: #2A2A38; border-radius: 2px; }
+
+/* ── Mobile nav link animation ── */
+.mobile-nav-link {
+  transition: color 0.2s, padding-left 0.2s;
+}
+.mobile-nav-link:hover { padding-left: 0.5rem; }
+
+/* ── Product card image zoom ── */
+.product-card-img { transition: transform 0.5s ease; }
+.product-card-img:hover { transform: scale(1.05); }
+
+/* ── Testimonial track hide scrollbar ── */
+.hide-scrollbar { scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+
+/* ── Product page ── */
+.bg-gradient-radial {
+  background: radial-gradient(circle, var(--tw-gradient-stops));
+}
+
+/* ── Aspect ratio polyfill for older Safari ── */
+.aspect-4\/3 { aspect-ratio: 4/3; }
+
+/* ── Gallery zoom ── */
+.gallery-zoom-enter { opacity: 0; }
+.gallery-zoom-enter-active { opacity: 1; transition: opacity 300ms; }
+.gallery-zoom-exit { opacity: 1; }
+.gallery-zoom-exit-active { opacity: 0; transition: opacity 200ms; }
+
+/* ── Half star ── */
+.star-half::after {
+  content: '★';
+  position: absolute;
+  left: 0;
+  width: 50%;
+  overflow: hidden;
+  color: #C8A86B;
+}
+
+/* ── Product tab underline animation ── */
+.tab-bar-indicator {
+  transition: transform 0.3s cubic-bezier(.4,0,.2,1), width 0.3s;
+}
+
+/* ── Spec table alternate rows ── */
+.spec-row:nth-child(even) { background: rgba(232,221,208,0.3); }
