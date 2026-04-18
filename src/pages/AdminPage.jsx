@@ -12,8 +12,8 @@ import AdminQuotes    from '../components/admin/AdminQuotes';
 import AdminOrders    from '../components/admin/AdminOrders';
 import AdminSettings  from '../components/admin/AdminSettings';
 
-const ADMIN_USER = process.env.REACT_APP_ADMIN_USER || 'admin';
-const ADMIN_PASS = process.env.REACT_APP_ADMIN_PASS || 'admin123';
+const ADMIN_USER = import.meta.env.REACT_APP_ADMIN_USER || 'admin';
+const ADMIN_PASS = import.meta.env.REACT_APP_ADMIN_PASS || 'admin123';
 
 function LoginScreen() {
   const dispatch = useDispatch();

@@ -2,7 +2,7 @@ import { call, put, takeLatest } from 'redux-saga/effects';
 import { setLocStrip } from '../slices/uiSlice';
 import { pushEvent, setLocationLoading } from '../slices/visitorSlice';
 
-const GEO_API = process.env.REACT_APP_GEO_API || 'https://api.bigdatacloud.net/data/reverse-geocode-client';
+const GEO_API = import.meta.env.REACT_APP_GEO_API || 'https://api.bigdatacloud.net/data/reverse-geocode-client';
 
 function getPosition() {
   return new Promise((resolve, reject) => {

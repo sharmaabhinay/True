@@ -5,7 +5,7 @@ import { storage } from '../../utils/localStorage';
 function syncProducts({ payload, type }) {
   // productsSlice reducers already call storage.saveProducts internally,
   // but this saga provides a hook for future API sync (e.g. PUT /api/products)
-  if (process.env.NODE_ENV === 'development') {
+  if (import.meta.env.DEV) {
     console.debug('[productsSaga] synced:', type, payload?.id || '');
   }
 }

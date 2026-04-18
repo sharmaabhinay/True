@@ -1,4 +1,4 @@
-# True Furnitures — React App
+# True Furnitures — Vite React App
 
 > Premium furniture store for Indore, MP — built with React 18, Redux Toolkit, Redux Saga, and Tailwind CSS.
 
@@ -44,13 +44,13 @@ src/
 npm install
 
 # 2. Copy env file
-cp .env.example .env
+copy .env.example .env
 
 # 3. Start development server
-npm start
+npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) — store is at `/`, admin at `/admin`.
+Open the local Vite URL shown in the terminal — store is at `/`, admin at `/admin`.
 
 ## Admin Panel
 
