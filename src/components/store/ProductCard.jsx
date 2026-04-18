@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { FiHeart } from 'react-icons/fi';
 import { addToCart } from '../../store/slices/cartSlice';
-import { toggleWishlist, selectWishlist } from '../../store/slices/productsSlice';
 import { showToast } from '../../store/slices/uiSlice';
+import { openAuthModal, selectCustomerWishlist, selectIsCustomerAuthenticated, toggleWishlist } from '../../store/slices/customerSlice';
 import { inr, stars } from '../../utils/formatters';
 import Badge from '../ui/Badge';
 
 export default function ProductCard({ product }) {
   const dispatch  = useDispatch();
   const navigate  = useNavigate();
-  const wishlist  = useSelector(selectWishlist);
+  const wishlist  = useSelector(selectCustomerWishlist);
+  const isAuthenticated = useSelector(selectIsCustomerAuthenticated);
   const [added, setAdded] = useState(false);
   const isWished  = wishlist.includes(product.id);
 
@@ -23,8 +25,13 @@ export default function ProductCard({ product }) {
 
   const handleWish = (e) => {
     e.stopPropagation();
+    if (!isAuthenticated) {
+      dispatch(openAuthModal({ mode: 'login', redirectTo: `/product/${product.id}` }));
+      dispatch(showToast('Login to save items to your wishlist.'));
+      return;
+    }
     dispatch(toggleWishlist(product.id));
-    dispatch(showToast(isWished ? 'Removed from wishlist' : '♥ Added to wishlist!'));
+    dispatch(showToast(isWished ? 'Removed from wishlist' : 'Added to wishlist.'));
   };
 
   const handleClick = () => navigate(`/product/${product.id}`);
@@ -56,7 +63,7 @@ export default function ProductCard({ product }) {
         {/* 3D model indicator */}
         {product.modelData && (
           <div className="absolute bottom-3 left-3 bg-deep/70 text-cream text-[0.6rem] px-2 py-0.5 rounded-full backdrop-blur-sm">
-            🧊 3D
+            3D
           </div>
         )}
         <button
@@ -65,7 +72,7 @@ export default function ProductCard({ product }) {
           className="absolute top-3 right-3 w-9 h-9 bg-white rounded-full flex items-center justify-center
                      shadow-warm-sm hover:scale-110 transition-transform border-none cursor-pointer text-base"
         >
-          {isWished ? <span className="text-red-500">♥</span> : '♡'}
+          <FiHeart className={isWished ? 'text-red-500 fill-current' : ''} />
         </button>
       </div>
 

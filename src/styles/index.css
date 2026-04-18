@@ -101,6 +101,39 @@ canvas.dragging { cursor: grabbing !important; }
 .gallery-zoom-exit { opacity: 1; }
 .gallery-zoom-exit-active { opacity: 0; transition: opacity 200ms; }
 
+/* Account + checkout motion */
+.hero-word-swap {
+  display: inline-block;
+  animation: heroWordPulse 0.45s ease;
+}
+
+@keyframes heroWordPulse {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.thank-you-ring {
+  animation: thankYouRing 2.4s ease-in-out infinite;
+}
+
+@keyframes thankYouRing {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(139,107,74,0.08); }
+  50% { transform: scale(1.03); box-shadow: 0 0 0 14px rgba(139,107,74,0); }
+}
+
+.animate-float-dot {
+  animation: floatDot 4.5s ease-in-out infinite;
+}
+
+.animate-float-dot-delayed {
+  animation: floatDot 5s ease-in-out infinite 0.8s;
+}
+
+@keyframes floatDot {
+  0%, 100% { transform: translateY(0); opacity: 0.6; }
+  50% { transform: translateY(-12px); opacity: 1; }
+}
+
 /* ── Half star ── */
 .star-half::after {
   content: '★';

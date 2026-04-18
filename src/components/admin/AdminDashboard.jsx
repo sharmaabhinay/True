@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { selectVisitors } from '../../store/slices/visitorSlice';
 import { selectAllProducts } from '../../store/slices/productsSlice';
+import { selectCustomers } from '../../store/slices/customerSlice';
 import { fmtTime, getDeviceIcon } from '../../utils/formatters';
 
 const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
@@ -14,8 +15,9 @@ const PILL_MAP = {
   add_to_cart: 'bg-purple-500/15 text-purple-400',
   newsletter:  'bg-pink-500/15 text-pink-400',
   view_3d:     'bg-indigo-400/15 text-indigo-400',
+  order:       'bg-gold/15 text-gold',
 };
-const TYPE_ICON = { visit:'📍', session:'🌐', add_to_cart:'🛒', quote:'💬', newsletter:'📧', view_3d:'🔮' };
+const TYPE_ICON = { visit:'📍', session:'🌐', add_to_cart:'🛒', quote:'💬', newsletter:'📧', view_3d:'🔮', order:'📦' };
 
 function MetricCard({ icon, label, value, change }) {
   return (
@@ -47,6 +49,7 @@ function VisitorRow({ city, n, max, colorClass='bg-gold' }) {
 export default function AdminDashboard() {
   const visitors = useSelector(selectVisitors);
   const products = useSelector(selectAllProducts);
+  const customers = useSelector(selectCustomers);
 
   const stats = useMemo(() => {
     const visits  = visitors.filter(v => v.type === 'visit');
@@ -76,7 +79,7 @@ export default function AdminDashboard() {
         <MetricCard icon="👥" label="Total Visitors"  value={stats.total||0}       change="↑ tracked live" />
         <MetricCard icon="💬" label="Quote Requests"  value={stats.quotes.length}  change="↑ from store form" />
         <MetricCard icon="🛋️" label="Active Products" value={products.filter(p=>p.active!==false).length} change="↑ manage below" />
-        <MetricCard icon="📍" label="Cities Reached"  value={Object.keys(stats.cityMap).length} change="↑ via geolocation" />
+        <MetricCard icon="👤" label="Customers" value={customers.length} change="↑ from signups" />
       </div>
 
       {/* Charts row */}

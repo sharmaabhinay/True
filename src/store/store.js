@@ -6,6 +6,7 @@ import productsReducer from './slices/productsSlice';
 import uiReducer       from './slices/uiSlice';
 import visitorReducer  from './slices/visitorSlice';
 import adminReducer    from './slices/adminSlice';
+import customerReducer from './slices/customerSlice';
 import rootSaga        from './sagas/rootSaga';
 
 const sagaMiddleware = createSagaMiddleware();
@@ -17,6 +18,7 @@ const store = configureStore({
     ui:       uiReducer,
     visitors: visitorReducer,
     admin:    adminReducer,
+    customer: customerReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({ serializableCheck: false }).concat(sagaMiddleware),

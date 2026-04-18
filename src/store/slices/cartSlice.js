@@ -6,20 +6,21 @@ const cartSlice = createSlice({
   initialState: { items: storage.getCart() },
   reducers: {
     addToCart(state, { payload }) {
-      const ex = state.items.find(i => i.id === payload.id);
+      const cartKey = payload.cartKey || String(payload.id);
+      const ex = state.items.find(i => (i.cartKey || String(i.id)) === cartKey);
       if (ex) ex.qty += 1;
-      else state.items.push({ ...payload, qty: 1 });
+      else state.items.push({ ...payload, cartKey, qty: 1 });
       storage.saveCart(state.items);
     },
-    removeFromCart(state, { payload: id }) {
-      state.items = state.items.filter(i => i.id !== id);
+    removeFromCart(state, { payload: cartKey }) {
+      state.items = state.items.filter(i => (i.cartKey || String(i.id)) !== cartKey);
       storage.saveCart(state.items);
     },
-    changeQty(state, { payload: { id, delta } }) {
-      const item = state.items.find(i => i.id === id);
+    changeQty(state, { payload: { cartKey, delta } }) {
+      const item = state.items.find(i => (i.cartKey || String(i.id)) === cartKey);
       if (!item) return;
       item.qty += delta;
-      if (item.qty <= 0) state.items = state.items.filter(i => i.id !== id);
+      if (item.qty <= 0) state.items = state.items.filter(i => (i.cartKey || String(i.id)) !== cartKey);
       storage.saveCart(state.items);
     },
     clearCart(state) { state.items = []; storage.saveCart([]); },

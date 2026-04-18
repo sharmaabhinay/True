@@ -6,6 +6,7 @@ export * from './slices/productsSlice';
 export * from './slices/uiSlice';
 export * from './slices/visitorSlice';
 export * from './slices/adminSlice';
+export * from './slices/customerSlice';
 
 // Saga actions
 export { FETCH_LOCATION } from './sagas/locationSaga';

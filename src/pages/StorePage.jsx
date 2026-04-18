@@ -1,8 +1,10 @@
 import React, { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 import { hideLoader } from '../store/slices/uiSlice';
 import { pushEvent } from '../store/slices/visitorSlice';
 import { FETCH_LOCATION } from '../store/sagas/locationSaga';
+import { openAuthModal, selectIsCustomerAuthenticated } from '../store/slices/customerSlice';
 
 // Layout
 import Navbar         from '../components/layout/Navbar';
@@ -13,6 +15,7 @@ import Toast          from '../components/layout/Toast';
 // Common
 import LocationStrip  from '../components/common/LocationStrip';
 import ContactBar     from '../components/common/ContactBar';
+import AuthModal      from '../components/common/AuthModal';
 import CartDrawer     from '../components/common/CartDrawer';
 import QuoteModal     from '../components/common/QuoteModal';
 import QuotePopup     from '../components/common/QuotePopup';
@@ -30,6 +33,8 @@ import Newsletter     from '../components/store/Newsletter';
 
 export default function StorePage() {
   const dispatch = useDispatch();
+  const location = useLocation();
+  const isAuthenticated = useSelector(selectIsCustomerAuthenticated);
 
   useEffect(() => {
     // Hide loader after 2.4s
@@ -50,10 +55,34 @@ export default function StorePage() {
     return () => clearTimeout(t);
   }, [dispatch]);
 
+  useEffect(() => {
+    if (!location.hash) return;
+    const id = location.hash.replace('#', '');
+    const target = document.getElementById(id);
+    if (!target) return;
+
+    const timer = window.setTimeout(() => {
+      const top = target.getBoundingClientRect().top + window.scrollY - 88;
+      window.scrollTo({ top, behavior: 'smooth' });
+    }, 80);
+
+    return () => window.clearTimeout(timer);
+  }, [location.hash]);
+
+  useEffect(() => {
+    if (isAuthenticated || sessionStorage.getItem('tf_auth_prompt_seen') === 'true') return;
+    const timer = window.setTimeout(() => {
+      dispatch(openAuthModal({ mode: 'signup' }));
+      sessionStorage.setItem('tf_auth_prompt_seen', 'true');
+    }, 900);
+    return () => window.clearTimeout(timer);
+  }, [dispatch, isAuthenticated]);
+
   return (
     <>
       <Loader />
       <Toast />
+      <AuthModal />
       <QuotePopup />
       <CartDrawer />
       <QuoteModal />

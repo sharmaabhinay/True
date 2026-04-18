@@ -1,11 +1,12 @@
 import React from 'react';
+import { FiClock, FiMail, FiMapPin, FiPhone, FiTruck } from 'react-icons/fi';
 
 const items = [
-  { icon:'📍', content: <span><strong>Vijay Nagar Square, Indore</strong> — MP 452010</span> },
-  { icon:'📞', content: <a href="tel:7773896496" className="text-cream hover:underline"><strong>7773896496</strong></a> },
-  { icon:'📧', content: <a href="mailto:info@truefurnitures.in" className="text-cream/80 hover:text-cream transition-colors">info@truefurnitures.in</a> },
-  { icon:'🕐', content: <span>Mon–Sat: <strong>10 AM – 8 PM</strong></span> },
-  { icon:'🚚', content: <span>Free delivery: <strong>Indore, Bhopal, Ujjain</strong></span> },
+  { icon:<FiMapPin />, content: <span><strong>Vijay Nagar Square, Indore</strong> — MP 452010</span> },
+  { icon:<FiPhone />, content: <a href="tel:7773896496" className="text-cream hover:underline"><strong>7773896496</strong></a> },
+  { icon:<FiMail />, content: <a href="mailto:info@truefurnitures.in" className="text-cream/80 hover:text-cream transition-colors">info@truefurnitures.in</a> },
+  { icon:<FiClock />, content: <span>Mon–Sat: <strong>10 AM – 8 PM</strong></span> },
+  { icon:<FiTruck />, content: <span>Free delivery: <strong>Indore, Bhopal, Ujjain</strong></span> },
 ];
 
 export default function ContactBar() {

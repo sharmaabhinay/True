@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { FiCalendar, FiCheckCircle, FiHeart, FiImage, FiLayers, FiMessageSquare, FiShoppingBag, FiTruck, FiTool } from 'react-icons/fi';
 import { selectAllProducts } from '../store/slices/productsSlice';
 import { addToCart } from '../store/slices/cartSlice';
 import { openQuoteModal, showToast } from '../store/slices/uiSlice';
 import { pushEvent } from '../store/slices/visitorSlice';
+import { openAuthModal, selectCustomerWishlist, selectIsCustomerAuthenticated, toggleWishlist } from '../store/slices/customerSlice';
 import { use3DCanvas } from '../hooks/use3DCanvas';
 import { drawSofa, drawAlmirah, drawBed, drawChair, drawOBJModel, parseOBJ } from '../utils/engine3d';
 import { PRODUCT_REVIEWS } from '../data/products';
@@ -15,6 +17,7 @@ import Footer     from '../components/layout/Footer';
 import Toast      from '../components/layout/Toast';
 import CartDrawer from '../components/common/CartDrawer';
 import QuoteModal from '../components/common/QuoteModal';
+import AuthModal  from '../components/common/AuthModal';
 import Badge      from '../components/ui/Badge';
 
 /* ─── map modelType → draw function ─────────────────────────── */
@@ -262,6 +265,8 @@ export default function ProductPage() {
   const navigate    = useNavigate();
   const dispatch    = useDispatch();
   const allProducts = useSelector(selectAllProducts);
+  const wishlist    = useSelector(selectCustomerWishlist);
+  const isAuthenticated = useSelector(selectIsCustomerAuthenticated);
 
   const product = useMemo(
     () => allProducts.find(p => String(p.id) === String(id)),
@@ -273,6 +278,7 @@ export default function ProductPage() {
   const [activeTab,     setActiveTab]     = useState('description');
   const [viewMode,      setViewMode]      = useState('image'); // 'image' | '3d'
   const [added,         setAdded]         = useState(false);
+  const isWished = wishlist.includes(Number(id)) || wishlist.includes(product?.id);
 
   // Resolved price based on selected size
   const price = useMemo(() => {
@@ -331,6 +337,7 @@ export default function ProductPage() {
   const handleAddToCart = () => {
     dispatch(addToCart({
       id:    product.id,
+      cartKey: `${product.id}-${selectedSize || 'base'}`,
       name:  selectedSize ? `${product.name} (${selectedSize})` : product.name,
       img:   product.img,
       price,
@@ -341,7 +348,17 @@ export default function ProductPage() {
 
   const handleBuyNow = () => {
     handleAddToCart();
-    dispatch(showToast('🎉 Added! Proceeding to checkout…'));
+    navigate('/checkout');
+  };
+
+  const handleWishlist = () => {
+    if (!isAuthenticated) {
+      dispatch(openAuthModal({ mode: 'login', redirectTo: `/product/${product.id}` }));
+      dispatch(showToast('Login to save this item to your wishlist.'));
+      return;
+    }
+    dispatch(toggleWishlist(product.id));
+    dispatch(showToast(isWished ? 'Removed from wishlist.' : 'Added to wishlist.'));
   };
 
   /* ── RENDER ── */
@@ -350,6 +367,7 @@ export default function ProductPage() {
       <Toast />
       <CartDrawer />
       <QuoteModal />
+      <AuthModal />
       <Navbar />
 
       <main className="pt-[68px] bg-ivory min-h-screen font-dm">
@@ -386,7 +404,7 @@ export default function ProductPage() {
                                 ? 'bg-deep text-cream border-deep'
                                 : 'bg-transparent border-warm text-muted hover:border-deep hover:text-deep'}`}
                 >
-                  📷 Photos
+                  <span className="inline-flex items-center gap-2"><FiImage /> Photos</span>
                 </button>
                 <button
                   onClick={() => setViewMode('3d')}
@@ -395,7 +413,7 @@ export default function ProductPage() {
                                 ? 'bg-deep text-cream border-deep'
                                 : 'bg-transparent border-warm text-muted hover:border-deep hover:text-deep'}`}
                 >
-                  🧊 3D View
+                  <span className="inline-flex items-center gap-2"><FiLayers /> 3D View</span>
                 </button>
               </div>
 
@@ -508,7 +526,7 @@ export default function ProductPage() {
                                 ? 'bg-sage text-white'
                                 : 'bg-deep text-cream hover:bg-wood active:scale-[0.98]'}`}
                 >
-                  {added ? '✓ Added to Cart' : '🛒 Add to Cart'}
+                  <span className="inline-flex items-center gap-2 justify-center">{added ? <FiCheckCircle /> : <FiShoppingBag />}{added ? 'Added to Cart' : 'Add to Cart'}</span>
                 </button>
                 <button
                   onClick={handleBuyNow}
@@ -518,24 +536,31 @@ export default function ProductPage() {
                   Buy Now
                 </button>
                 <button
+                  onClick={handleWishlist}
+                  title="Save to wishlist"
+                  className={`sm:w-auto px-5 py-4 rounded-xl text-sm font-dm font-medium border-2 transition-all cursor-pointer bg-transparent ${isWished ? 'border-bark text-bark' : 'border-warm text-muted hover:border-bark hover:text-bark'}`}
+                >
+                  <FiHeart className={isWished ? 'fill-current' : ''} />
+                </button>
+                <button
                   onClick={() => dispatch(openQuoteModal())}
                   title="Get a custom quote"
                   className="sm:w-auto px-5 py-4 rounded-xl text-sm font-dm font-medium border-2 border-warm text-muted
                              hover:border-bark hover:text-bark transition-all cursor-pointer bg-transparent"
                 >
-                  📋
+                  <FiMessageSquare />
                 </button>
               </div>
 
               {/* Trust badges */}
               <div className="grid grid-cols-3 gap-3 pt-1 border-t border-warm">
                 {[
-                  ['🚚', 'Free Delivery', 'In Indore & MP'],
-                  ['🔧', 'Free Assembly', 'By our team'],
-                  ['🛡️', product.specs?.Warranty || '5-Year Warranty', 'Structural coverage'],
+                  [<FiTruck />, 'Free Delivery', 'In Indore & MP'],
+                  [<FiTool />, 'Free Assembly', 'By our team'],
+                  [<FiCheckCircle />, product.specs?.Warranty || '5-Year Warranty', 'Structural coverage'],
                 ].map(([icon, title, sub]) => (
                   <div key={title} className="text-center p-3 bg-cream rounded-xl">
-                    <span className="text-xl block mb-1">{icon}</span>
+                    <span className="text-xl inline-flex justify-center mb-1">{icon}</span>
                     <p className="text-deep text-[0.72rem] font-medium leading-tight">{title}</p>
                     <p className="text-muted text-[0.65rem] mt-0.5">{sub}</p>
                   </div>
@@ -544,7 +569,7 @@ export default function ProductPage() {
 
               {/* Delivery estimate + SKU */}
               <div className="flex items-center gap-2 text-sm text-muted">
-                <span>📅</span>
+                <span><FiCalendar /></span>
                 <span>
                   Estimated delivery: <strong className="text-deep">{product.deliveryDays || '7–12 working days'}</strong>
                 </span>

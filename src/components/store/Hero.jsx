@@ -1,16 +1,26 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { openQuoteModal } from '../../store/slices/uiSlice';
 import { use3DCanvas } from '../../hooks/use3DCanvas';
 import { drawSofa } from '../../utils/engine3d';
 
+const WORDS = ['sofa', 'bedroom', 'almirah', 'dining', 'workspace'];
+
 export default function Hero() {
   const dispatch = useDispatch();
+  const [activeWord, setActiveWord] = useState(WORDS[0]);
 
   const { canvasRef } = use3DCanvas(
     (ctx, cx, cy, rx, ry) => drawSofa(ctx, cx, cy, rx, ry, '#8B6B4A'),
     []
   );
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setActiveWord((current) => WORDS[(WORDS.indexOf(current) + 1) % WORDS.length]);
+    }, 1800);
+    return () => window.clearInterval(id);
+  }, []);
 
   const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
 
@@ -43,13 +53,15 @@ export default function Hero() {
         <h1 className="font-cormorant font-light text-deep leading-[1.05] mb-5
                        text-[2.6rem] sm:text-[3.2rem] lg:text-[4rem] xl:text-[4.8rem]
                        animate-fade-up" style={{ animationDelay:'2.6s', animationFillMode:'both' }}>
-          Furniture that<br />tells your <em className="text-bark not-italic">story</em>
+          Get your fully customized<br />
+          <span className="inline-flex min-h-[1.2em] items-center">
+            <em key={activeWord} className="text-bark not-italic hero-word-swap">{activeWord}</em>
+          </span>
         </h1>
 
         <p className="text-muted leading-relaxed max-w-md mb-8 text-sm md:text-base
                       animate-fade-up" style={{ animationDelay:'2.7s', animationFillMode:'both' }}>
-          From majestic almirahs to sculptural sofas — every piece at True Furnitures, Indore
-          is handcrafted to last generations and designed to inspire every day.
+          From tailored wardrobes to sculptural seating, every piece at True Furnitures is built around your room, your routine, and your finish preferences.
         </p>
 
         <div className="flex flex-wrap gap-3 animate-fade-up" style={{ animationDelay:'2.8s', animationFillMode:'both' }}>
@@ -59,11 +71,11 @@ export default function Hero() {
                              transition-all active:scale-95 cursor-pointer border-none">
             Explore Collection
           </button>
-          <button onClick={() => scrollTo('model-viewer')}
+          <button onClick={() => dispatch(openQuoteModal('I want a fully customized furniture design consultation.'))}
                   className="bg-transparent text-bark border-2 border-bark px-7 py-3.5 rounded-xl text-sm font-dm font-medium
                              hover:bg-bark hover:text-white hover:-translate-y-0.5
                              transition-all active:scale-95 cursor-pointer">
-            View in 3D
+            Start Custom Design
           </button>
         </div>
 

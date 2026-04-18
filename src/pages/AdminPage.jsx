@@ -11,6 +11,7 @@ import AdminProducts  from '../components/admin/AdminProducts';
 import AdminQuotes    from '../components/admin/AdminQuotes';
 import AdminOrders    from '../components/admin/AdminOrders';
 import AdminSettings  from '../components/admin/AdminSettings';
+import AdminCustomers from '../components/admin/AdminCustomers';
 
 const ADMIN_USER = import.meta.env.REACT_APP_ADMIN_USER || 'admin';
 const ADMIN_PASS = import.meta.env.REACT_APP_ADMIN_PASS || 'admin123';
@@ -70,6 +71,7 @@ const PANELS = {
   products:  AdminProducts,
   quotes:    AdminQuotes,
   orders:    AdminOrders,
+  customers: AdminCustomers,
   settings:  AdminSettings,
 };
 

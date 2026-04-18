@@ -1,17 +1,19 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { FiBarChart2, FiBox, FiLogOut, FiMessageSquare, FiPackage, FiSettings, FiUsers, FiGlobe } from 'react-icons/fi';
 import {
   selectActivePanel, selectSidebarOpen,
   setPanel, closeSidebar, logout,
 } from '../../store/slices/adminSlice';
 
 const NAV = [
-  { id:'dashboard', icon:'📊', label:'Dashboard',        section:'Overview'  },
-  { id:'visitors',  icon:'👁️', label:'Visitor Analytics', section:null        },
-  { id:'orders',    icon:'📦', label:'Orders',            section:null        },
-  { id:'products',  icon:'🛋️', label:'Products',          section:'Store'     },
-  { id:'quotes',    icon:'💬', label:'Quote Requests',    section:null        },
-  { id:'settings',  icon:'⚙️', label:'Settings',          section:'Settings'  },
+  { id:'dashboard', icon:FiBarChart2, label:'Dashboard',        section:'Overview'  },
+  { id:'visitors',  icon:FiUsers, label:'Visitor Analytics', section:null        },
+  { id:'orders',    icon:FiPackage, label:'Orders',            section:null        },
+  { id:'customers', icon:FiUsers, label:'Customers',         section:'Store'     },
+  { id:'products',  icon:FiBox, label:'Products',          section:null     },
+  { id:'quotes',    icon:FiMessageSquare, label:'Quote Requests',    section:null        },
+  { id:'settings',  icon:FiSettings, label:'Settings',          section:'Settings'  },
 ];
 
 export default function AdminSidebar() {
@@ -53,7 +55,7 @@ export default function AdminSidebar() {
                                   ${active===item.id
                                     ? 'text-gold bg-gold/[0.06] border-l-gold'
                                     : 'text-admin-muted border-l-transparent hover:text-admin-text hover:bg-white/[0.03]'}`}>
-                <span className="text-[0.95rem] min-w-[18px]">{item.icon}</span>
+                <span className="text-[0.95rem] min-w-[18px]"><item.icon /></span>
                 {item.label}
               </button>
             </React.Fragment>
@@ -62,7 +64,7 @@ export default function AdminSidebar() {
                   className="w-full flex items-center gap-3 px-5 py-2.5 text-left text-[0.82rem]
                              cursor-pointer bg-transparent border-none border-l-2 border-l-transparent
                              text-admin-muted hover:text-admin-text hover:bg-white/[0.03] transition-all">
-            <span className="text-[0.95rem] min-w-[18px]">🌐</span>
+            <span className="text-[0.95rem] min-w-[18px]"><FiGlobe /></span>
             View Store
           </button>
         </nav>
@@ -80,7 +82,8 @@ export default function AdminSidebar() {
           </div>
           <button onClick={() => dispatch(logout())}
                   className="w-full bg-white/[0.04] border border-admin-border text-admin-muted text-[0.76rem]
-                             py-2 rounded-lg hover:border-admin-red hover:text-admin-red transition-all cursor-pointer font-dm">
+                             py-2 rounded-lg hover:border-admin-red hover:text-admin-red transition-all cursor-pointer font-dm flex items-center justify-center gap-2">
+            <FiLogOut />
             Sign Out
           </button>
         </div>

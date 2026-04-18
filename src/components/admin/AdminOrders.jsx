@@ -1,14 +1,30 @@
 import React from 'react';
 import { DEMO_ORDERS } from '../../data/constants';
+import { useSelector } from 'react-redux';
+import { selectAllOrders } from '../../store/slices/customerSlice';
 
 const STATUS_CLS = {
   delivered:  'bg-admin-green/15 text-admin-green',
   processing: 'bg-gold/15 text-gold',
   shipped:    'bg-admin-blue/15 text-admin-blue',
   cancelled:  'bg-admin-red/15 text-admin-red',
+  confirmed:  'bg-gold/15 text-gold',
 };
 
 export default function AdminOrders() {
+  const liveOrders = useSelector(selectAllOrders);
+  const orders = liveOrders.length
+    ? liveOrders.map((order) => ({
+        id: order.id,
+        customer: order.customerName,
+        items: order.items.map((item) => `${item.name} ×${item.qty}`).join(', '),
+        amount: order.amount,
+        city: order.address?.city || 'Indore',
+        date: new Date(order.date).toLocaleDateString('en-IN', { dateStyle: 'medium' }),
+        status: order.status,
+      }))
+    : DEMO_ORDERS;
+
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between flex-wrap gap-3">
@@ -27,7 +43,7 @@ export default function AdminOrders() {
               ))}</tr>
             </thead>
             <tbody>
-              {DEMO_ORDERS.map(o => (
+              {orders.map(o => (
                 <tr key={o.id} className="border-t border-admin-border/40 hover:bg-white/[0.018]">
                   <td className="py-3 pr-4 text-sm font-medium text-admin-text">{o.id}</td>
                   <td className="py-3 pr-4 text-sm text-admin-text">{o.customer}</td>
