@@ -1,146 +1,59 @@
-import { useMemo, useState } from "react";
-import CategorySection from "../components/store/CategorySection";
-import CartDrawer from "../components/store/CartDrawer";
-import EmiCalculatorSection from "../components/store/EmiCalculatorSection";
-import FooterSection from "../components/store/FooterSection";
-import HeroSection from "../components/store/HeroSection";
-import ModelViewerSection from "../components/store/ModelViewerSection";
-import Navbar from "../components/store/Navbar";
-import ProductGrid from "../components/store/ProductGrid";
-import QuoteModal from "../components/store/QuoteModal";
-import RoomPlannerSection from "../components/store/RoomPlannerSection";
-import TestimonialsSection from "../components/store/TestimonialsSection";
-import Toast from "../components/common/Toast";
-import { modelMeta, roomFurniture, testimonials } from "../data/catalog";
-import { useStoreData } from "../hooks/useStoreData";
-
-function sortProducts(products, sortBy) {
-  const clone = [...products];
-  if (sortBy === "price-asc") clone.sort((a, b) => a.price - b.price);
-  if (sortBy === "price-desc") clone.sort((a, b) => b.price - a.price);
-  if (sortBy === "rating") clone.sort((a, b) => b.rating - a.rating);
-  return clone;
-}
+import React, { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { hideLoader } from '../store/slices/uiSlice';
+import { pushEvent } from '../store/slices/visitorSlice';
+import { FETCH_LOCATION } from '../store/sagas/locationSaga';
+import Navbar        from '../components/layout/Navbar';
+import Footer        from '../components/layout/Footer';
+import Loader        from '../components/layout/Loader';
+import Toast         from '../components/layout/Toast';
+import LocationStrip from '../components/common/LocationStrip';
+import ContactBar    from '../components/common/ContactBar';
+import CartDrawer    from '../components/common/CartDrawer';
+import QuoteModal    from '../components/common/QuoteModal';
+import QuotePopup    from '../components/common/QuotePopup';
+import Hero          from '../components/store/Hero';
+import Categories    from '../components/store/Categories';
+import ModelViewer   from '../components/store/ModelViewer';
+import Products      from '../components/store/Products';
+import WhyUs         from '../components/store/WhyUs';
+import Testimonials  from '../components/store/Testimonials';
+import RoomPlanner   from '../components/store/RoomPlanner';
+import EMICalculator from '../components/store/EMICalculator';
+import Newsletter    from '../components/store/Newsletter';
 
 export default function StorePage() {
-  const { products, logEvent } = useStoreData();
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("all");
-  const [filter, setFilter] = useState("all");
-  const [sort, setSort] = useState("featured");
-  const [cart, setCart] = useState([]);
-  const [cartOpen, setCartOpen] = useState(false);
-  const [quoteOpen, setQuoteOpen] = useState(false);
-  const [toast, setToast] = useState("");
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const dispatch = useDispatch();
 
-  const showToast = (message) => {
-    setToast(message);
-    window.clearTimeout(showToast.timer);
-    showToast.timer = window.setTimeout(() => setToast(""), 2600);
-  };
-
-  const visibleProducts = useMemo(() => {
-    const filtered = products.filter((product) => {
-      if (product.active === false) return false;
-      if (category !== "all" && product.cat !== category) return false;
-      if (filter !== "all" && !product.tags?.includes(filter)) return false;
-      if (
-        search &&
-        !`${product.name} ${product.cat} ${product.desc}`.toLowerCase().includes(search.toLowerCase())
-      ) {
-        return false;
-      }
-      return true;
-    });
-    return sortProducts(filtered, sort);
-  }, [category, filter, products, search, sort]);
-
-  const addToCart = (product) => {
-    setCart((current) => {
-      const existing = current.find((item) => item.id === product.id);
-      if (existing) {
-        return current.map((item) => (item.id === product.id ? { ...item, qty: item.qty + 1 } : item));
-      }
-      return [...current, { ...product, qty: product.qty || 1 }];
-    });
-    setCartOpen(true);
-    showToast(`${product.name} added to cart.`);
-    logEvent({ type: "add_to_cart", item: product.name });
-  };
-
-  const cartCount = cart.reduce((sum, item) => sum + item.qty, 0);
+  useEffect(() => {
+    const t = setTimeout(() => dispatch(hideLoader()), 2400);
+    dispatch(FETCH_LOCATION);
+    dispatch(pushEvent({ type:'session', ua:navigator.userAgent, screen:`${screen.width}x${screen.height}`, ref:document.referrer||'direct', page:'/' }));
+    return () => clearTimeout(t);
+  }, [dispatch]);
 
   return (
-    <div className="store-app">
-      <div className="top-strip">Delivering to Indore and nearby cities. Free delivery above ₹15,000.</div>
-      <Navbar
-        cartCount={cartCount}
-        search={search}
-        onSearch={setSearch}
-        onOpenCart={() => setCartOpen(true)}
-        onOpenQuote={() => setQuoteOpen(true)}
-        mobileOpen={mobileOpen}
-        onToggleMobile={() => setMobileOpen((value) => !value)}
-      />
-      <HeroSection />
-      <section className="contact-band">
-        <div>Vijay Nagar Square, Indore</div>
-        <div>Mon-Sat: 10 AM - 8 PM</div>
-        <div>Free delivery in Indore, Bhopal, Ujjain</div>
-      </section>
-      <CategorySection active={category} onSelect={setCategory} />
-      <ModelViewerSection
-        meta={modelMeta}
-        products={products}
-        onAddToCart={addToCart}
-        onOpenQuote={() => setQuoteOpen(true)}
-        onTrack={(type, detail) => logEvent({ type, ...detail })}
-      />
-      <ProductGrid
-        products={visibleProducts}
-        filter={filter}
-        setFilter={setFilter}
-        sort={sort}
-        setSort={setSort}
-        onAddToCart={addToCart}
-        onView3D={(product) => {
-          document.getElementById("model-viewer")?.scrollIntoView({ behavior: "smooth" });
-          logEvent({ type: "view_3d", item: product.name });
-          showToast(`Opening 3D view for ${product.name}.`);
-        }}
-      />
-      <TestimonialsSection items={testimonials} />
-      <RoomPlannerSection items={roomFurniture} onToast={showToast} />
-      <EmiCalculatorSection />
-      <FooterSection />
-      <QuoteModal
-        open={quoteOpen}
-        onClose={() => setQuoteOpen(false)}
-        onSubmit={(form) => {
-          if (!form.name.trim()) {
-            showToast("Please enter your name.");
-            return;
-          }
-          logEvent({ type: "quote", ...form });
-          setQuoteOpen(false);
-          showToast("Quote request sent. We will call you within 24 hours.");
-        }}
-      />
-      <CartDrawer
-        open={cartOpen}
-        items={cart}
-        onClose={() => setCartOpen(false)}
-        onChangeQty={(id, delta) =>
-          setCart((current) =>
-            current
-              .map((item) => (item.id === id ? { ...item, qty: item.qty + delta } : item))
-              .filter((item) => item.qty > 0)
-          )
-        }
-        onRemove={(id) => setCart((current) => current.filter((item) => item.id !== id))}
-      />
-      <Toast message={toast} />
-    </div>
+    <>
+      <Loader />
+      <Toast />
+      <QuotePopup />
+      <CartDrawer />
+      <QuoteModal />
+      <LocationStrip />
+      <Navbar />
+      <main>
+        <Hero />
+        <ContactBar />
+        <Categories />
+        <ModelViewer />
+        <Products />
+        <WhyUs />
+        <Testimonials />
+        <RoomPlanner />
+        <EMICalculator />
+        <Newsletter />
+      </main>
+      <Footer />
+    </>
   );
 }

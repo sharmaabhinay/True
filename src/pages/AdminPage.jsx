@@ -1,93 +1,73 @@
-import { useMemo, useState } from "react";
-import AdminSidebar from "../components/admin/AdminSidebar";
-import {
-  DashboardPanel,
-  OrdersPanel,
-  ProductsPanel,
-  QuotesPanel,
-  SettingsPanel,
-  VisitorsPanel,
-} from "../components/admin/AdminPanels";
-import LoginScreen from "../components/admin/LoginScreen";
-import Toast from "../components/common/Toast";
-import { useStoreData } from "../hooks/useStoreData";
-import { readAdminSession, writeAdminSession } from "../lib/storage";
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectAdminAuth, selectActivePanel, login as adminLogin, logout as adminLogout, setPanel, toggleSidebar, showAdminToast } from '../store/slices/adminSlice';
+import { FiBarChart2, FiEye, FiPackage, FiShoppingBag, FiMessageSquare, FiSettings, FiGlobe, FiLock, FiMail, FiMenu, FiX, FiLogOut, FiUsers, FiRefreshCw } from 'react-icons/fi';
+import AdminSidebar  from '../components/admin/AdminSidebar';
+import AdminTopbar   from '../components/admin/AdminTopbar';
+import AdminToast    from '../components/admin/AdminToast';
+import AdminDashboard from '../components/admin/AdminDashboard';
+import AdminVisitors  from '../components/admin/AdminVisitors';
+import AdminProducts  from '../components/admin/AdminProducts';
+import AdminQuotes    from '../components/admin/AdminQuotes';
+import AdminOrders    from '../components/admin/AdminOrders';
+import AdminSettings  from '../components/admin/AdminSettings';
+import AdminCustomers from '../components/admin/AdminCustomers';
 
-export default function AdminPage() {
-  const { products, setProducts, visitors, clearVisitorLog } = useStoreData();
-  const [active, setActive] = useState("dashboard");
-  const [loggedIn, setLoggedIn] = useState(() => readAdminSession());
-  const [toast, setToast] = useState("");
+const VITE_ADMIN_USER = import.meta.env.VITE_ADMIN_USER || 'admin';
+const VITE_ADMIN_PASS = import.meta.env.VITE_ADMIN_PASS || 'admin123';
 
-  const pageTitle = useMemo(
-    () =>
-      ({
-        dashboard: "Dashboard",
-        visitors: "Visitor Analytics",
-        products: "Product Manager",
-        quotes: "Quote Requests",
-        orders: "Orders",
-        settings: "Settings",
-      })[active],
-    [active]
-  );
+function LoginScreen() {
+  const dispatch = useDispatch();
+  const [user, setUser] = useState('');
+  const [pass, setPass] = useState('');
+  const [err,  setErr]  = useState(false);
 
-  const showToast = (message) => {
-    setToast(message);
-    window.clearTimeout(showToast.timer);
-    showToast.timer = window.setTimeout(() => setToast(""), 2400);
+  const handleLogin = () => {
+    if (user === VITE_ADMIN_USER && pass === VITE_ADMIN_PASS) { dispatch(adminLogin()); }
+    else { setErr(true); setTimeout(()=>setErr(false),2500); }
   };
 
-  if (!loggedIn) {
-    return (
-      <>
-        <LoginScreen
-          onLogin={() => {
-            writeAdminSession(true);
-            setLoggedIn(true);
-          }}
-        />
-        <Toast message={toast} />
-      </>
-    );
-  }
+  const inputCls = "w-full bg-admin-surface border border-admin-border rounded-lg px-4 py-3 text-sm text-admin-text outline-none font-dm placeholder:text-admin-muted focus:border-gold transition-colors";
 
   return (
-    <div className="admin-app">
-      <AdminSidebar
-        active={active}
-        setActive={setActive}
-        onLogout={() => {
-          writeAdminSession(false);
-          setLoggedIn(false);
-        }}
-      />
-      <main className="admin-main">
-        <header className="admin-topbar">
+    <div className="min-h-screen bg-admin-bg flex items-center justify-center p-4">
+      <div className="bg-admin-card border border-admin-border rounded-2xl p-8 w-full max-w-sm">
+        <div className="text-center mb-8">
+          <h2 className="font-cormorant text-3xl text-gold font-semibold">TrueFurnitures</h2>
+          <p className="text-admin-muted text-xs mt-1">Admin Panel · Indore</p>
+        </div>
+        <div className="space-y-4">
           <div>
-            <span className="live-pill">Live</span>
-            <h1>{pageTitle}</h1>
+            <label className="text-admin-muted text-[0.68rem] uppercase tracking-wider block mb-1.5">Username</label>
+            <div className="relative"><FiLock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-admin-muted"/><input type="text" value={user} onChange={e=>setUser(e.target.value)} placeholder="admin" className={`${inputCls} pl-9`} onKeyDown={e=>e.key==='Enter'&&handleLogin()}/></div>
           </div>
-          <a className="secondary-btn" href="/">
-            View Store
-          </a>
-        </header>
-        {active === "dashboard" && <DashboardPanel products={products} visitors={visitors} />}
-        {active === "visitors" && (
-          <VisitorsPanel
-            visitors={visitors}
-            onClear={() => {
-              clearVisitorLog();
-              showToast("Visitor log cleared.");
-            }}
-          />
-        )}
-        {active === "products" && <ProductsPanel products={products} setProducts={setProducts} />}
-        {active === "quotes" && <QuotesPanel visitors={visitors} />}
-        {active === "orders" && <OrdersPanel />}
-        {active === "settings" && <SettingsPanel />}
-      </main>
-      <Toast message={toast} />
+          <div>
+            <label className="text-admin-muted text-[0.68rem] uppercase tracking-wider block mb-1.5">Password</label>
+            <div className="relative"><FiMail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-admin-muted"/><input type="password" value={pass} onChange={e=>setPass(e.target.value)} placeholder="admin123" className={`${inputCls} pl-9`} onKeyDown={e=>e.key==='Enter'&&handleLogin()}/></div>
+          </div>
+          {err && <p className="text-admin-red text-xs text-center">Invalid credentials. Try admin / admin123</p>}
+          <button onClick={handleLogin} className="w-full bg-gold text-deep py-3 rounded-lg text-sm font-semibold cursor-pointer border-none hover:opacity-85 font-dm mt-2">Sign In</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const PANELS = { dashboard:AdminDashboard, visitors:AdminVisitors, products:AdminProducts, quotes:AdminQuotes, orders:AdminOrders, customers:AdminCustomers, settings:AdminSettings };
+
+export default function AdminPage() {
+  const auth  = useSelector(selectAdminAuth);
+  const panel = useSelector(selectActivePanel);
+  if (!auth) return <LoginScreen />;
+  const ActivePanel = PANELS[panel] || AdminDashboard;
+  return (
+    <div className="min-h-screen bg-admin-bg font-dm flex">
+      <AdminToast />
+      <AdminSidebar />
+      <div className="flex-1 flex flex-col lg:ml-[240px] min-w-0">
+        <AdminTopbar />
+        <main className="flex-1 overflow-y-auto admin-scroll p-5 md:p-6"><ActivePanel /></main>
+      </div>
     </div>
   );
 }
